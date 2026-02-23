@@ -58,5 +58,31 @@ export async function setupProject(projectPath: string) {
     console.warn("⚠️ Failed to update .claudecode/config.json:", err instanceof Error ? err.message : String(err));
   }
 
+  // 3. .agents/mcp.json 설정 (Antigravity 전용 최적화)
+  const agentDirPath = join(projectPath, ".agents");
+  const agentConfigPath = join(agentDirPath, "mcp.json");
+  try {
+    await mkdir(agentDirPath, { recursive: true });
+    let agentConfig: McpConfig = { mcpServers: {} };
+    try {
+      const existing = await readFile(agentConfigPath, "utf-8");
+      agentConfig = JSON.parse(existing);
+    } catch {
+      // 파일 없음
+    }
+
+    agentConfig.mcpServers = agentConfig.mcpServers || {};
+    agentConfig.mcpServers["oh-my-agents"] = {
+      command: "npx",
+      // Antigravity 환경에서 가장 안정적인 npx 호출 방식
+      args: ["-y", "oh-my-agents"],
+    };
+
+    await writeFile(agentConfigPath, JSON.stringify(agentConfig, null, 2));
+    console.log("✅ Added to .agents/mcp.json (Antigravity optimized)");
+  } catch (err: unknown) {
+    console.warn("⚠️ Failed to update .agents/mcp.json:", err instanceof Error ? err.message : String(err));
+  }
+
   console.log("\nSetup complete! You can now use oh-my-agents tools in your AI assistant.");
 }

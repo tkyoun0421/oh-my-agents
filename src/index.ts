@@ -15,7 +15,7 @@ import { setupProject } from "./lib/setup.js";
 
 const server = new McpServer({
   name: "oh-my-agents",
-  version: "1.0.3",
+  version: "1.0.5",
 });
 
 registerSearchTool(server);
