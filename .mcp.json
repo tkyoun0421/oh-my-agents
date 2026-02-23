@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "oh-my-agents": {
+      "command": "node",
+      "args": ["C:\\Users\\tkyou\\OneDrive\\문서\\code\\oh-my-agents\\dist\\index.js"]
+    }
+  }
+}
