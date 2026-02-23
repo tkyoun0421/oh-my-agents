@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "oh-my-agents": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "oh-my-agents"
+      ]
+    }
+  }
+}
