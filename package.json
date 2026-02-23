@@ -1,0 +1,24 @@
+{
+  "name": "oh-my-agents",
+  "version": "1.0.0",
+  "description": "AI agent skills package manager MCP",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "oh-my-agents": "dist/index.js"
+  },
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "tsx": "^4.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
