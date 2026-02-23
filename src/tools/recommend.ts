@@ -96,7 +96,13 @@ export function registerRecommendTool(server: McpServer) {
 
       const items = top5.map(
         (s, i) =>
-          `${i + 1}. **${s.name}** (${s.installs.toLocaleString()} installs)\n   추천 이유: \`${s.reason}\` 관련\n   설치: \`skills_install "${s.source}"\``
+          [
+            `${i + 1}. **${s.name}** (${s.installs.toLocaleString()} installs)`,
+            `   👤 제작사: [${s.source}](https://github.com/${s.source})`,
+            `   🔗 상세 페이지: https://skills.sh/${s.id}`,
+            `   💡 추천 이유: \`${s.reason}\` 관련`,
+            `   📦 설치: \`skills_install "${s.source}"\``,
+          ].join("\n")
       );
 
       return {
