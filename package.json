@@ -1,6 +1,6 @@
 {
   "name": "oh-my-agents",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "AI agent skills package manager MCP — search, install, and recommend skills from skills.sh",
   "type": "module",
   "main": "dist/index.js",
