@@ -104,7 +104,7 @@ export function registerRecommendTool(server: McpServer) {
             `   - **🛡️ 보안 정보**: ✅ 검증된 소스 (${s.installs > 1000 ? "높은 신뢰도" : "커뮤니티 확인 중"})`,
             `   - **🔗 상세 정보**: https://skills.sh/${s.id}`,
             `   - **💡 추천 이유**: 프로젝트의 \`${s.reason}\` 환경에 최적화된 도구입니다.`,
-            `   - **📦 설치**: \`skills_install "${s.id}"\``,
+            `   - **📦 설치**: \`npx skills_install "${s.id}"\``,
           ].join("\n")
       );
 
