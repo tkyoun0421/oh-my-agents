@@ -30,7 +30,7 @@ export async function setupProject(_projectPath: string) {
     },
     {
       name: "Claude Code",
-      path: join(home, ".claude.json"),
+      path: join(home, ".claude", "mcp_config.json"),
     },
     {
       name: "Cursor",

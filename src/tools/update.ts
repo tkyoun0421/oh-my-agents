@@ -5,7 +5,7 @@ import { runSkillsCli } from "../lib/cli.js";
 export function registerUpdateTool(server: McpServer) {
   server.tool(
     "skills_update",
-    "설치된 스킬을 최신 버전으로 업데이트합니다 (npx skills 사용)",
+    "설치된 스킬을 최신 버전으로 업데이트합니다. 이 툴을 호출하기 전 사용자에게 업데이트 대상과 범위를 확인받으세요.",
     {
       skillId: z
         .string()
@@ -15,10 +15,16 @@ export function registerUpdateTool(server: McpServer) {
       projectPath: z.string().optional(),
     },
     async ({ skillId, scope, projectPath }) => {
-      const base = skillId ? `update ${skillId}` : "update";
-      const args = `${base} -y`;
+      let cmd = skillId ? `update ${skillId}` : "update";
+      if (scope === "global") {
+        cmd += " --global";
+      }
+      // MCP는 non-TTY 환경이므로 -y 필수
+      cmd += " -y";
+      const resolvedProjectPath =
+        scope === "project" ? (projectPath ?? process.cwd()) : undefined;
       try {
-        const { stdout, stderr } = await runSkillsCli(args, scope, projectPath);
+        const { stdout, stderr } = await runSkillsCli(cmd, scope, resolvedProjectPath);
         return {
           content: [
             {

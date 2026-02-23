@@ -1,6 +1,6 @@
 {
   "name": "oh-my-agents",
-  "version": "1.0.14",
+  "version": "1.1.0",
   "description": "AI agent skills package manager MCP — search, install, and recommend skills from skills.sh",
   "type": "module",
   "main": "dist/index.js",
@@ -43,11 +43,12 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
+    "oh-my-agents": "^1.0.16",
     "zod": "^3.22.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0",
     "tsx": "^4.0.0",
-    "@types/node": "^20.0.0"
+    "typescript": "^5.0.0"
   }
 }

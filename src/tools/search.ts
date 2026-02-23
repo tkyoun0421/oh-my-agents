@@ -21,13 +21,19 @@ export function registerSearchTool(server: McpServer) {
       }
       const lines = skills.map(
         (s, i) =>
-          `${i + 1}. **${s.name}** (${s.installs.toLocaleString()} installs)\n   ID: \`${s.id}\`\n   소스: ${s.source}`
+          `${i + 1}. **${s.name}** (${s.installs.toLocaleString()} installs)\n   ID: \`${s.id}\`\n   소스: ${s.source}\n   설치: \`npx skills add ${s.source}\``
       );
       return {
         content: [
           {
             type: "text",
-            text: `## '${query}' 검색 결과 (${skills.length}개)\n\n${lines.join("\n\n")}`,
+            text: [
+              `## '${query}' 검색 결과 (${skills.length}개)`,
+              ``,
+              ...lines,
+              ``,
+              `> 💡 더 정확한 검색은 터미널에서 \`npx skills find ${query}\`를 실행하세요.`,
+            ].join("\n\n"),
           },
         ],
       };

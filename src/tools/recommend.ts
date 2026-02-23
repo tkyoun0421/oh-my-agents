@@ -40,6 +40,7 @@ export function registerRecommendTool(server: McpServer) {
       const seen = new Set<string>();
       const candidates: Array<{
         id: string;
+        skillId: string;
         name: string;
         installs: number;
         source: string;
@@ -104,7 +105,7 @@ export function registerRecommendTool(server: McpServer) {
             `   - **🛡️ 보안 정보**: ✅ 검증된 소스 (${s.installs > 1000 ? "높은 신뢰도" : "커뮤니티 확인 중"})`,
             `   - **🔗 상세 정보**: https://skills.sh/${s.id}`,
             `   - **💡 추천 이유**: 프로젝트의 \`${s.reason}\` 환경 및 구조적 특성에 최적화된 보완 도구입니다.`,
-            `   - **📦 설치**: \`npx skills_install "${s.id}"\``,
+            `   - **📦 설치**: 터미널에서 \`npx skills find ${s.name}\`으로 검색 후 설치하세요.`,
           ].join("\n")
       );
 

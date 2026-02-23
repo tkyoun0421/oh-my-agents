@@ -18,9 +18,11 @@ export function registerCheckTool(server: McpServer) {
       const lines: string[] = [];
 
       for (const s of scopes) {
-        if (s === "project" && !projectPath) continue;
+        const resolvedProjectPath =
+          s === "project" ? (projectPath ?? process.cwd()) : undefined;
         try {
-          const { stdout } = await runSkillsCli("check", s, projectPath);
+          const cmd = s === "global" ? "check --global" : "check";
+          const { stdout } = await runSkillsCli(cmd, s, resolvedProjectPath);
           lines.push(
             `### ${s === "global" ? "🌍 전역" : "📁 프로젝트"}\n${stdout || "모든 스킬이 최신 상태입니다."}`
           );
@@ -28,6 +30,7 @@ export function registerCheckTool(server: McpServer) {
           lines.push(`### ${s}\n❌ 확인 실패: ${err instanceof Error ? err.message : String(err)}`);
         }
       }
+      lines.push(`\n> 💡 업데이트하려면 터미널에서 \`npx skills update\`를 실행하세요.`);
       return { content: [{ type: "text", text: lines.join("\n\n") }] };
     }
   );

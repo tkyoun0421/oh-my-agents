@@ -5,7 +5,7 @@ import { runSkillsCli } from "../lib/cli.js";
 export function registerRemoveTool(server: McpServer) {
   server.tool(
     "skills_remove",
-    "설치된 스킬을 제거합니다 (npx skills 사용)",
+    "설치된 스킬을 제거합니다. 반드시 이 툴을 호출하기 전 사용자에게 제거할 skillId와 범위를 명확히 확인받으세요.",
     {
       skillId: z.string().describe("제거할 스킬 ID"),
       scope: z.enum(["global", "project"]).default("global"),
@@ -13,10 +13,18 @@ export function registerRemoveTool(server: McpServer) {
     },
     async ({ skillId, scope, projectPath }) => {
       try {
+        let cmd = `remove ${skillId}`;
+        if (scope === "global") {
+          cmd += " --global";
+        }
+        // MCP는 non-TTY 환경이므로 -y 필수
+        cmd += " -y";
+        const resolvedProjectPath =
+          scope === "project" ? (projectPath ?? process.cwd()) : undefined;
         const { stdout, stderr } = await runSkillsCli(
-          `remove ${skillId} -y`,
+          cmd,
           scope,
-          projectPath
+          resolvedProjectPath
         );
         return {
           content: [
