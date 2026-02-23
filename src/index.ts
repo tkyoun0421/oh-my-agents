@@ -15,7 +15,7 @@ import { setupProject } from "./lib/setup.js";
 
 const server = new McpServer({
   name: "oh-my-agents",
-  version: "1.0.5",
+  version: "1.0.7",
 });
 
 registerSearchTool(server);
@@ -28,30 +28,33 @@ registerCheckTool(server);
 registerRecommendTool(server);
 
 async function main() {
-  const isTty = process.stdin.isTTY;
   const args = process.argv.slice(2);
+  const isTty = process.stdin.isTTY;
 
-  // MCP 서버 모드 강제 실행 조건:
-  // 1. TTY가 아님 (에이전트가 파이프로 실행 중)
-  // 2. TTY이지만 인자가 없음 (이 경우 안내 메시지 출력 후 종료 방지) -> 여기서는 인자가 있을 때만 setup 실행
-  
-  if (isTty) {
-    if (args.includes("setup")) {
-      await setupProject(process.cwd());
-      return;
-    }
-    
-    if (args.includes("--help") || args.includes("-h") || args.length === 0) {
-      console.log("Welcome to oh-my-agents! 🚀");
-      console.log("This is an MCP server for managing AI agent skills.");
-      console.log("\nUsage:");
-      console.log("  npx oh-my-agents setup    - Configures this MCP server in your local project.");
-      console.log("\nWhen run without arguments in a non-interactive environment, it starts as an MCP server.");
-      return;
-    }
+  // 1. 설정 명령 처리
+  if (args.includes("setup")) {
+    await setupProject(process.cwd());
+    return;
   }
 
-  // Non-TTY (MCP mode)
+  // 2. 도움말 명령 처리
+  if (args.includes("--help") || args.includes("-h")) {
+    console.log("Welcome to oh-my-agents! 🚀");
+    console.log("This is an MCP server for managing AI agent skills.");
+    console.log("\nUsage:");
+    console.log("  npx oh-my-agents setup    - Configures this MCP server in your local project.");
+    console.log("\nMCP mode (default):");
+    console.log("  Starts the MCP server and waits for JSON-RPC messages on stdin.");
+    return;
+  }
+
+  // 3. 기본 동작: MCP 서버 시작
+  // TTY인 경우 사용자에게 안내 메시지를 stderr에 출력 (JSON-RPC 방해 안 함)
+  if (isTty) {
+    console.error("Welcome to oh-my-agents! 🚀");
+    console.error("Running in MCP server mode. (Tip: Use 'setup' command for auto-configuration)");
+  }
+
   const transport = new StdioServerTransport();
   await server.connect(transport);
   console.error("oh-my-agents MCP server running (8 tools registered)");
