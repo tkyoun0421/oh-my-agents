@@ -15,7 +15,8 @@ export function registerUpdateTool(server: McpServer) {
       projectPath: z.string().optional(),
     },
     async ({ skillId, scope, projectPath }) => {
-      const args = skillId ? `update ${skillId}` : "update";
+      const base = skillId ? `update ${skillId}` : "update";
+      const args = `${base} -y`;
       try {
         const { stdout, stderr } = await runSkillsCli(args, scope, projectPath);
         return {

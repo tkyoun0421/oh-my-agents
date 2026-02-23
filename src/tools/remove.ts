@@ -14,7 +14,7 @@ export function registerRemoveTool(server: McpServer) {
     async ({ skillId, scope, projectPath }) => {
       try {
         const { stdout, stderr } = await runSkillsCli(
-          `remove ${skillId}`,
+          `remove ${skillId} -y`,
           scope,
           projectPath
         );
