@@ -27,10 +27,10 @@ export function registerUpdateTool(server: McpServer) {
             },
           ],
         };
-      } catch (err) {
+      } catch (err: unknown) {
         return {
           content: [
-            { type: "text", text: `❌ 업데이트 실패: ${String(err)}` },
+            { type: "text", text: `❌ 업데이트 실패: ${err instanceof Error ? err.message : String(err)}` },
           ],
         };
       }

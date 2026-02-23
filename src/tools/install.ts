@@ -63,10 +63,10 @@ export function registerInstallTool(server: McpServer) {
             },
           ],
         };
-      } catch (err) {
+      } catch (err: unknown) {
         return {
           content: [
-            { type: "text", text: `❌ 설치 실패: ${String(err)}` },
+            { type: "text", text: `❌ 설치 실패: ${err instanceof Error ? err.message : String(err)}` },
           ],
         };
       }

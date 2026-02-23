@@ -26,10 +26,10 @@ export function registerRemoveTool(server: McpServer) {
             },
           ],
         };
-      } catch (err) {
+      } catch (err: unknown) {
         return {
           content: [
-            { type: "text", text: `❌ 제거 실패: ${String(err)}` },
+            { type: "text", text: `❌ 제거 실패: ${err instanceof Error ? err.message : String(err)}` },
           ],
         };
       }

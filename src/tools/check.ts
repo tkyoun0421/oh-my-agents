@@ -24,8 +24,8 @@ export function registerCheckTool(server: McpServer) {
           lines.push(
             `### ${s === "global" ? "🌍 전역" : "📁 프로젝트"}\n${stdout || "모든 스킬이 최신 상태입니다."}`
           );
-        } catch (err) {
-          lines.push(`### ${s}\n❌ 확인 실패: ${String(err)}`);
+        } catch (err: unknown) {
+          lines.push(`### ${s}\n❌ 확인 실패: ${err instanceof Error ? err.message : String(err)}`);
         }
       }
       return { content: [{ type: "text", text: lines.join("\n\n") }] };

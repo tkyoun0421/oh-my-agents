@@ -2,21 +2,21 @@
 
 AI 에이전트 스킬 패키지 매니저 MCP — [skills.sh](https://skills.sh) 레지스트리에서 스킬을 검색·설치·관리·추천합니다.
 
-## 설치
+## 설치 및 설정
+
+가장 쉬운 방법은 프로젝트 루트에서 아래 명령을 실행하는 것입니다:
 
 ```bash
-npm install -g oh-my-agents
+npx oh-my-agents setup
 ```
 
-또는 `npx`로 바로 실행:
+이 명령은 현재 프로젝트의 `.mcp.json` 및 `.claudecode/config.json` 파일을 자동으로 탐지하여 `oh-my-agents` 서버 설정을 추가합니다.
 
-```bash
-npx oh-my-agents
-```
+설정이 완료되면 AI 에이전트(Antigravity, Claude Code 등)가 자동으로 도구를 인식합니다.
 
-## MCP 설정
+### 수동 설정
 
-`.mcp.json`에 추가:
+명령어 기반 설정이 작동하지 않는 경우, 아래 내용을 `.mcp.json`에 직접 추가하세요:
 
 ```json
 {
