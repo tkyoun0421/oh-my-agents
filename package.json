@@ -1,16 +1,45 @@
 {
   "name": "oh-my-agents",
   "version": "1.0.0",
-  "description": "AI agent skills package manager MCP",
+  "description": "AI agent skills package manager MCP — search, install, and recommend skills from skills.sh",
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "bin": {
     "oh-my-agents": "dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "mcp",
+    "ai-agents",
+    "skills",
+    "skills.sh",
+    "model-context-protocol",
+    "agent-skills",
+    "package-manager"
+  ],
+  "author": "tkyoun0421",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tkyoun0421/oh-my-agents.git"
+  },
+  "homepage": "https://github.com/tkyoun0421/oh-my-agents#readme",
+  "bugs": {
+    "url": "https://github.com/tkyoun0421/oh-my-agents/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.0",
