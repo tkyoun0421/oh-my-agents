@@ -1,5 +1,6 @@
 import { writeFile, readFile, mkdir } from "fs/promises";
 import { join } from "path";
+import { homedir, platform } from "os";
 
 interface McpServerConfig {
   command: string;
@@ -11,78 +12,67 @@ interface McpConfig {
   mcpServers?: Record<string, McpServerConfig>;
 }
 
-export async function setupProject(projectPath: string) {
-  console.log(`Setting up oh-my-agents in ${projectPath}...`);
+export async function setupProject(_projectPath: string) {
+  console.log(`Setting up oh-my-agents globally...`);
 
-  // 1. .mcp.json 설정 (Antigravity, Gemini 등 지원)
-  const mcpConfigPath = join(projectPath, ".mcp.json");
-  let mcpConfig: McpConfig = { mcpServers: {} };
-  try {
-    const existing = await readFile(mcpConfigPath, "utf-8");
-    mcpConfig = JSON.parse(existing);
-  } catch {
-    // 파일 없음
-  }
-
-  mcpConfig.mcpServers = mcpConfig.mcpServers || {};
-  mcpConfig.mcpServers["oh-my-agents"] = {
+  const serverConfig: McpServerConfig = {
     command: "npx",
     args: ["-y", "oh-my-agents"],
   };
 
-  await writeFile(mcpConfigPath, JSON.stringify(mcpConfig, null, 2));
-  console.log("✅ Added to .mcp.json");
+  const home = homedir();
+  const isWin = platform() === "win32";
 
-  // 2. .claudecode/config.json 설정 (Claude Code 지원)
-  const claudeDirPath = join(projectPath, ".claudecode");
-  const claudeConfigPath = join(claudeDirPath, "config.json");
-  try {
-    await mkdir(claudeDirPath, { recursive: true });
-    let claudeConfig: McpConfig = { mcpServers: {} };
+  const targets = [
+    {
+      name: "Antigravity",
+      path: join(home, ".gemini", "antigravity", "mcp_config.json"),
+    },
+    {
+      name: "Claude Code",
+      path: join(home, ".claude.json"),
+    },
+    {
+      name: "Cursor",
+      path: join(home, ".cursor", "mcp.json"), // Cursor typically uses .cursor/mcp.json or UI based config
+    },
+    {
+      name: "Claude Desktop",
+      path: isWin
+        ? join(process.env.APPDATA || "", "Claude", "claude_desktop_config.json")
+        : join(home, "Library", "Application Support", "Claude", "claude_desktop_config.json"),
+    },
+  ];
+
+  for (const target of targets) {
     try {
-      const existing = await readFile(claudeConfigPath, "utf-8");
-      claudeConfig = JSON.parse(existing);
-    } catch {
-      // 파일 없음
+      // 디렉토리가 없으면 생성 (파일 경로에서 디렉토리만 추출)
+      const dir = join(target.path, "..");
+      await mkdir(dir, { recursive: true });
+
+      let config: McpConfig = { mcpServers: {} };
+      try {
+        const existing = await readFile(target.path, "utf-8");
+        config = JSON.parse(existing);
+      } catch {
+        // 파일 없음
+      }
+
+      config.mcpServers = config.mcpServers || {};
+      config.mcpServers["oh-my-agents"] = serverConfig;
+
+      await writeFile(target.path, JSON.stringify(config, null, 2));
+      console.log(`✅ Added to ${target.name} config`);
+    } catch (err: unknown) {
+      // 에러 로그는 최소화 (특정 IDE가 설치 안 된 경우일 수 있음)
+      if (!(err instanceof Error && "code" in err && err.code === "ENOENT")) {
+         console.warn(`⚠️ Could not update ${target.name} config:`, err instanceof Error ? err.message : String(err));
+      }
     }
-
-    claudeConfig.mcpServers = claudeConfig.mcpServers || {};
-    claudeConfig.mcpServers["oh-my-agents"] = {
-      command: "npx",
-      args: ["-y", "oh-my-agents"],
-    };
-
-    await writeFile(claudeConfigPath, JSON.stringify(claudeConfig, null, 2));
-    console.log("✅ Added to .claudecode/config.json");
-  } catch (err: unknown) {
-    console.warn("⚠️ Failed to update .claudecode/config.json:", err instanceof Error ? err.message : String(err));
   }
 
-  // 3. .agents/mcp.json 설정 (Antigravity 전용 최적화)
-  const agentDirPath = join(projectPath, ".agents");
-  const agentConfigPath = join(agentDirPath, "mcp.json");
-  try {
-    await mkdir(agentDirPath, { recursive: true });
-    let agentConfig: McpConfig = { mcpServers: {} };
-    try {
-      const existing = await readFile(agentConfigPath, "utf-8");
-      agentConfig = JSON.parse(existing);
-    } catch {
-      // 파일 없음
-    }
-
-    agentConfig.mcpServers = agentConfig.mcpServers || {};
-    agentConfig.mcpServers["oh-my-agents"] = {
-      command: "npx",
-      // Antigravity 환경에서 가장 안정적인 npx 호출 방식
-      args: ["-y", "oh-my-agents"],
-    };
-
-    await writeFile(agentConfigPath, JSON.stringify(agentConfig, null, 2));
-    console.log("✅ Added to .agents/mcp.json (Antigravity optimized)");
-  } catch (err: unknown) {
-    console.warn("⚠️ Failed to update .agents/mcp.json:", err instanceof Error ? err.message : String(err));
-  }
-
-  console.log("\nSetup complete! You can now use oh-my-agents tools in your AI assistant.");
+  console.log("\nSetup complete! oh-my-agents is now configured globally for your AI tools.");
 }
+
+
+
