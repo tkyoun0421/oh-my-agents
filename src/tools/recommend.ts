@@ -101,6 +101,7 @@ export function registerRecommendTool(server: McpServer) {
             `   📊 설치 지수: ${s.installs.toLocaleString()} installs`,
             `   👤 제작사: [${s.source}](https://github.com/${s.source})`,
             `   🛡️ 보안 정보: ✅ 검증된 소스 (${s.installs > 1000 ? "높은 신뢰도" : "커뮤니티 확인 중"})`,
+            `   🔗 상세 정보: https://skills.sh/${s.id}`,
             `   💡 추천 이유: \`${s.reason}\` 관련`,
             `   📦 설치: \`skills_install "${s.id}"\``,
           ].join("\n")
