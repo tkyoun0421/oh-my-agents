@@ -86,9 +86,10 @@ export function registerRecommendTool(server: McpServer) {
         .join(" / ");
 
       const header = [
-        `## 🎯 스킬 추천`,
+        `### 🚀 프로젝트 맞춤형 추천 스킬 TOP 5`,
         `**분석 결과**: ${stackInfo || "감지된 스택 없음"}`,
         intent ? `**작업 의도**: ${intent}` : null,
+        `기술 스택과 작업 의도를 바탕으로 가장 유용한 스킬들을 선별했습니다.`,
         "",
       ]
         .filter((l) => l !== null)
@@ -98,17 +99,17 @@ export function registerRecommendTool(server: McpServer) {
         (s, i) =>
           [
             `${i + 1}. **${s.name}**`,
-            `   📊 설치 지수: ${s.installs.toLocaleString()} installs`,
-            `   👤 제작사: [${s.source}](https://github.com/${s.source})`,
-            `   🛡️ 보안 정보: ✅ 검증된 소스 (${s.installs > 1000 ? "높은 신뢰도" : "커뮤니티 확인 중"})`,
-            `   🔗 상세 정보: https://skills.sh/${s.id}`,
-            `   💡 추천 이유: \`${s.reason}\` 관련`,
-            `   📦 설치: \`skills_install "${s.id}"\``,
+            `   - **📊 설치 지수**: ${s.installs.toLocaleString()} installs`,
+            `   - **👤 제작사**: [${s.source}](https://github.com/${s.source})`,
+            `   - **🛡️ 보안 정보**: ✅ 검증된 소스 (${s.installs > 1000 ? "높은 신뢰도" : "커뮤니티 확인 중"})`,
+            `   - **🔗 상세 정보**: https://skills.sh/${s.id}`,
+            `   - **💡 추천 이유**: 프로젝트의 \`${s.reason}\` 환경에 최적화된 도구입니다.`,
+            `   - **📦 설치**: \`skills_install "${s.id}"\``,
           ].join("\n")
       );
 
       return {
-        content: [{ type: "text", text: `${header}${items.join("\n\n")}` }],
+        content: [{ type: "text", text: `${header}\n${items.join("\n\n")}` }],
       };
     }
   );
