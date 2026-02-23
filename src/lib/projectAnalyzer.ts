@@ -5,6 +5,8 @@ export interface ProjectContext {
   frameworks: string[];
   languages: string[];
   testTools: string[];
+  architecturePatterns: string[];
+  detectedStack: string[];
   searchKeywords: string[];
 }
 
@@ -44,9 +46,11 @@ export async function analyzeProject(projectPath: string): Promise<ProjectContex
   const frameworks: string[] = [];
   const languages: string[] = [];
   const testTools: string[] = [];
+  const architecturePatterns: string[] = [];
+  const detectedStack: string[] = [];
   const allDeps: string[] = [];
 
-  // package.json 분석
+  // 1. package.json 분석 및 기술 스택(Stack) 확정
   try {
     const pkgPath = join(projectPath, "package.json");
     const content = await readFile(pkgPath, "utf-8");
@@ -63,34 +67,76 @@ export async function analyzeProject(projectPath: string): Promise<ProjectContex
       }
     }
 
-    // 유명 라이브러리 직접 추가 (Prisma, Zod 등)
-    if (deps["prisma"]) frameworks.push("prisma");
-    if (deps["zod"]) frameworks.push("zod");
-    if (deps["tailwindcss"]) frameworks.push("tailwind");
-    if (deps["supabase"]) frameworks.push("supabase");
+    // 유명 라이브러리 직접 추가 및 관련 스택(Complementary) 확장
+    if (deps["prisma"]) {
+      frameworks.push("prisma");
+      detectedStack.push("database-orm");
+    }
+    if (deps["zod"]) {
+      frameworks.push("zod");
+      detectedStack.push("validation");
+    }
+    if (deps["next"]) {
+      detectedStack.push("nextjs-ecosystem");
+    }
+    if (deps["tailwindcss"]) {
+      frameworks.push("tailwind");
+      detectedStack.push("styling-system");
+    }
+    if (deps["supabase"]) {
+      frameworks.push("supabase");
+      detectedStack.push("backend-as-a-service");
+    }
 
     for (const [tool, name] of Object.entries(TEST_TOOL_MAP)) {
       if (deps[tool]) testTools.push(name);
     }
   } catch {
-    // package.json 없음, 무시
+    // package.json 없음
   }
 
-  // 파일 확장자 스캔 (최상위 + src/ + app/ + lib/)
+  // 2. 아키텍처 패턴 분석 (폴더 구조 기반 - 포인트 2번)
   try {
     const scanDirs = [projectPath, join(projectPath, "src"), join(projectPath, "app"), join(projectPath, "lib")];
-    const extCount: Record<string, number> = {};
+    const allFolders = new Set<string>();
 
     for (const dir of scanDirs) {
+      try {
+        const entries = await readdir(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isDirectory()) allFolders.add(entry.name);
+        }
+      } catch { /* 무시 */ }
+    }
+
+    // 패턴 매칭
+    if (allFolders.has("atoms") || allFolders.has("molecules")) {
+      architecturePatterns.push("atomic-design");
+    }
+    if (allFolders.has("features")) {
+      architecturePatterns.push("feature-sliced-design");
+    }
+    if (allFolders.has("domain") && allFolders.has("infrastructure")) {
+      architecturePatterns.push("clean-architecture");
+    }
+    if (allFolders.has("components") && (allFolders.has("hooks") || allFolders.has("services"))) {
+      architecturePatterns.push("modular-architecture");
+    }
+  } catch { /* 무시 */ }
+
+  // 3. 파일 확장자 기반 언어 분석
+  try {
+    const scanPaths = [projectPath, join(projectPath, "src")];
+    const extCount: Record<string, number> = {};
+
+    for (const dir of scanPaths) {
       try {
         const files = await readdir(dir);
         for (const file of files) {
           const ext = extname(file);
           if (ext) extCount[ext] = (extCount[ext] ?? 0) + 1;
         }
-      } catch {
-        // 디렉토리 없음, 무시
-      }
+      } catch { /* 무시 */ }
     }
 
     const topExts = Object.entries(extCount)
@@ -102,21 +148,21 @@ export async function analyzeProject(projectPath: string): Promise<ProjectContex
       const lang = EXTENSION_LANG_MAP[ext];
       if (lang && !languages.includes(lang)) languages.push(lang);
     }
-  } catch {
-    // 무시
-  }
+  } catch { /* 무시 */ }
 
-  // 검색 키워드 조합 (프레임워크 + 언어 + 테스트툴 + 주요 의존성 일부)
-  // 너무 많은 키워드는 검색을 느리게 하므로 Set으로 중복 제거 후 주요 키워드 추출
-  const searchKeywords = [...new Set([...frameworks, ...languages, ...testTools])];
+  // 4. 검색 키워드 조합 (포인트 4번: 상호 보완적 키워드 주입)
+  const searchKeywords = [...new Set([...frameworks, ...languages, ...testTools, ...architecturePatterns])];
   
-  // 의존성 중 유명한 것들 위주로 키워드 보강 (앞에서 frameworks에 안 들어간 것들 중 일부)
-  const importantKeywords = ["prisma", "zod", "tailwind", "react-hook-form", "playwright", "supabase", "firebase", "graphql"];
-  for (const kw of importantKeywords) {
-    if (allDeps.some(d => d.includes(kw)) && !searchKeywords.includes(kw)) {
-      searchKeywords.push(kw);
-    }
+  // 스택 기반 상호 보완 키워드 (Complementary)
+  if (detectedStack.includes("nextjs-ecosystem")) {
+    searchKeywords.push("sentry", "lighthouse", "seo-optimization");
+  }
+  if (detectedStack.includes("database-orm") && frameworks.includes("prisma")) {
+    searchKeywords.push("zod-prisma", "erd-generator");
+  }
+  if (detectedStack.includes("styling-system") && frameworks.includes("tailwind")) {
+    searchKeywords.push("headless-ui", "framer-motion");
   }
 
-  return { frameworks, languages, testTools, searchKeywords };
+  return { frameworks, languages, testTools, architecturePatterns, detectedStack, searchKeywords };
 }
